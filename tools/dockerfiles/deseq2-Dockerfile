@@ -1,0 +1,49 @@
+#################################################################
+# Dockerfile
+#
+# Software:         DESeq2
+# Software Version: 1.10.1
+# Description:      R package to run differential analysis
+# Website:          https://www.bioconductor.org/packages/3.2/bioc/html/DESeq2.html
+# Provides:         DESeq2
+# Base Image:       biowardrobe2/scidap-addons:v0.0.6
+# Build Cmd:        docker build --rm -t biowardrobe2/deseq2:v1.10.1 -f deseq2-Dockerfile .
+# Pull Cmd:         docker pull biowardrobe2/deseq2:v1.10.1
+# Run Cmd:          docker run --rm -ti biowardrobe2/deseq2:v1.10.1
+#################################################################
+# DESeq2 version depends on Bioconductor version.
+# For biowardrobe2/scidap-addons:v0.0.6 Bioconductor 3.2 is used,
+# so there is no way to set version for DESeq2 other than 1.10.1.
+# Latest RcppArmadillo (DeSeq2 dependency) requires R >= 3.3.0,
+# so 0.6.500.4.0 version is used instead.
+#################################################################
+
+
+### Base Image
+FROM biowardrobe2/scidap-addons:v0.0.6
+MAINTAINER Michael Kotliar "misha.kotliar@gmail.com"
+ENV DEBIAN_FRONTEND noninteractive
+
+
+################## BEGIN INSTALLATION ######################
+
+WORKDIR /tmp
+
+ENV VERSION_RCPPARMADILLO 0.6.500.4.0
+ENV URL_RCPPARMADILLO "https://cran.r-project.org/src/contrib/Archive/RcppArmadillo/RcppArmadillo_${VERSION_RCPPARMADILLO}.tar.gz"
+
+COPY ./scripts/install_deseq2.R /tmp/install_deseq2.R
+
+### Installing dependencies
+RUN apt-get update && \
+    apt-get install libxml2-dev -y && \
+
+### Installing DeSeq2 packages from Bioconductor
+    Rscript /tmp/install_deseq2.R "${URL_RCPPARMADILLO}" && \
+
+### Cleaning
+    rm /tmp/install_deseq2.R && \
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true
