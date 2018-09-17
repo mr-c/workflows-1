@@ -89,6 +89,7 @@ inputs:
   bed_template:
     type:
       - "null"
+      - string
       - File
     inputBinding:
       position: 6
