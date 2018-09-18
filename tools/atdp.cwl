@@ -10,16 +10,9 @@ requirements:
     };
 - class: InitialWorkDirRequirement
   listing: |
-    ${
-      return  [
-                {
-                  "entry": inputs.annotation_filename,
-                  "entryname": inputs.annotation_filename.basename,
-                  "writable": true
-                }
-              ]
-    }
-
+    - entry: $(inputs.annotation_filename),
+      entryname: $(inputs.annotation_filename.basename)
+      writable: true
 
 hints:
 - class: DockerRequirement
